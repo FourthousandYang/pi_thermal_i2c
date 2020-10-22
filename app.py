@@ -1,8 +1,22 @@
-import numpy as np
-import time
+#!/usr/bin/env python
+from importlib import import_module
+import os,requests
 import cv2
-from pylepton import Lepton
+import numpy as np
+import json
+from flask import Flask, render_template, Response
+import time
 import Adafruit_DHT
+
+# import camera driver
+#if os.environ.get('CAMERA'):
+#    Camera = import_module('camera_' + os.environ['CAMERA']).Camera
+#else:
+    #from camera import Camera
+from camera_opencv import Camera
+from th_camera_opencv import ThCamera
+# Raspberry Pi camera module (requires picamera package)
+# from camera_pi import Camera
 
 GPIO_PIN = 4
 
@@ -11,20 +25,21 @@ def sensor_get():
     current_time = time.strftime("%Y/%m/%d %H:%M:%S", time.localtime())
     if h is not None and t is not None:
         #t = time.localtime()
-        #current_time = time.strftime("%Y/%m/%d %H:%M:%S", t)
+        # current_time = time.strftime("%Y/%m/%d %H:%M:%S  ", time.localtime())
         
-        print('溫度={0:0.1f}度C 濕度={1:0.1f}% '.format(t, h),current_time)
+        print(current_time+'溫度={0:0.1f}度C 濕度={1:0.1f}% '.format(t, h))
     else:
         print('讀取失敗，重新讀取。')
 
     return t,h,current_time
 
-def max_temp(img):
-    global getImage
-    imgt=getImage.copy()
+def max_temp(img,th_img):
+    #global getImage
+    imgt=th_img.copy()
     minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(imgt)
     deg = display_temperatureC(img, maxVal, maxLoc, (0, 255, 0))
     return ktoc(maxVal)
+
 
 def generate_colour_map(colorMapType = 1):
     """
@@ -142,32 +157,72 @@ def raw_to_8bit(data):
     np.right_shift(data, 8, data)
     return cv2.cvtColor(np.uint8(data), cv2.COLOR_GRAY2RGB)
 
-try:
+#r = requests.get("http://10.71.10.246:5000/ip_get")
+#print (r)
+app = Flask(__name__)
+
+
+@app.route('/')
+def index():
+    """Video streaming home page."""
+    return render_template('index.html')
+
+
+def gen(camera):
+    """Video streaming generator function."""
     while True:
-        with Lepton() as l:
-            a,_ = l.capture()
+        #r = requests.get("https://10.71.10.246:5000/ip_get")
+        frame = camera.get_frame()
+        if frame is None:
+            continue
+        # yield (b'--frame\r\n'
+        #        b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+        yield (b'--frame\r\n'
+                    b'Content-Type:image/jpeg\r\n'
+                    b'Content-Length: ' + f"{len(frame)}".encode() + b'\r\n'
+                    b'\r\n' + frame + b'\r\n')
 
-        a = cv2.resize(a[:,:], (640, 480))
-
-        getImage = a.copy()
+def th_gen(camera):
+    """Video streaming generator function."""
+    while True:
+        #r = requests.get("https://10.71.10.246:5000/ip_get")
+        th_img = camera.get_frame()
+        if th_img is None:
+            continue
+        frame = th_img.copy()
+        frame = cv2.LUT(raw_to_8bit(frame), generate_colour_map())
+        max_temp(frame,th_img)
+        frame = cv2.imencode('.jpg', frame)[1].tobytes()
+        # yield (b'--frame\r\n'
+        #        b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+        yield (b'--frame\r\n'
+                    b'Content-Type:image/jpeg\r\n'
+                    b'Content-Length: ' + f"{len(frame)}".encode() + b'\r\n'
+                    b'\r\n' + frame + b'\r\n')
         
-        ## exp data
-        val = ktoc(getImage[240,320])
-        t,h,td = sensor_get()
 
-        with open('record.txt','a+') as f:
-            f.write("Time:"+td +' Thermal:'+val+' Temperatue:'+t+" Humidity:"+h)
+@app.route('/rgb')
+def rgb():
+    """Video streaming route. Put this in the src attribute of an img tag."""
+    return Response(gen(Camera()),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
-        ## Show
-        # img = cv2.LUT(raw_to_8bit(a), generate_colour_map())
-        # deg = max_temp(img)
-        # sensor_get()
-        # cv2.imshow('frame',img)
-        # if cv2.waitKey(1) & 0xFF == ord('q'):
-        #     break
-        #cv2.normalize(a, a, 0, 65535, cv2.NORM_MINMAX) # extend contrast
-        #np.right_shift(a, 8, a) # fit data into 8 bits
-        #cv2.imwrite("output.jpg", np.uint8(a)) # write it!
+@app.route('/th')
+def th():
+    """Video streaming route. Put this in the src attribute of an img tag."""
+    return Response(th_gen(ThCamera()),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
-except KeyboardInterrupt:
-    print('Close')
+@app.route('/sensor')
+def sensor():
+    temp,dry,date = sensor_get()
+    json_output = { 
+        'Temperatue': temp ,
+        'Humidity': dry,
+        'Time':date
+        }
+    return Response(json.dumps(json_output), mimetype='application/json')
+
+if __name__ == '__main__':
+    print(app.before_first_request_funcs)
+    app.run(host='0.0.0.0', threaded=True)
