@@ -143,31 +143,38 @@ def raw_to_8bit(data):
     return cv2.cvtColor(np.uint8(data), cv2.COLOR_GRAY2RGB)
 
 try:
+    item_temp = input('Analyte temperatue:')
+    dis = input('Analyte distance:')
+    current_time = time.strftime("%Y%m%d", time.localtime())
+    file_name = 'record_'+str(current_time)+'_'+str(item_temp)+'_'+str(dis)+'.txt'
+    start_time = time.time()
     while True:
-        with Lepton() as l:
-            a,_ = l.capture()
+        if (time.time()-start_time)>=1:
+            with Lepton() as l:
+                a,_ = l.capture()
 
-        a = cv2.resize(a[:,:], (640, 480))
+            a = cv2.resize(a[:,:], (640, 480))
 
-        getImage = a.copy()
-        
-        ## exp data
-        val = ktoc(getImage[240,320])
-        t,h,td = sensor_get()
-
-        with open('record.txt','a+') as f:
-            f.write("Time:"+td +' Thermal:'+val+' Temperatue:'+t+" Humidity:"+h)
-
-        ## Show
-        # img = cv2.LUT(raw_to_8bit(a), generate_colour_map())
-        # deg = max_temp(img)
-        # sensor_get()
-        # cv2.imshow('frame',img)
-        # if cv2.waitKey(1) & 0xFF == ord('q'):
-        #     break
-        #cv2.normalize(a, a, 0, 65535, cv2.NORM_MINMAX) # extend contrast
-        #np.right_shift(a, 8, a) # fit data into 8 bits
-        #cv2.imwrite("output.jpg", np.uint8(a)) # write it!
-
+            getImage = a.copy()
+            
+            ## exp data
+            val = ktoc(getImage[240,320])
+            t,h,td = sensor_get()
+            '溫度={0:0.1f}度C 濕度={1:0.1f}% '.format(t, h)
+            with open(file_name,'a+') as f:
+                f.write("Time:"+ td +' Thermal:'+"{0:.1f} degC".format(val)+' Temperatue:'+"{0:.1f} degC".format(t)+" Humidity:"+"{0:.1f} %".format(h)+'\n')
+            start_time = time.time()
+            ## Show
+            # img = cv2.LUT(raw_to_8bit(a), generate_colour_map())
+            # deg = max_temp(img)
+            # sensor_get()
+            # cv2.imshow('frame',img)
+            # if cv2.waitKey(1) & 0xFF == ord('q'):
+            #     break
+            #cv2.normalize(a, a, 0, 65535, cv2.NORM_MINMAX) # extend contrast
+            #np.right_shift(a, 8, a) # fit data into 8 bits
+            #cv2.imwrite("output.jpg", np.uint8(a)) # write it!
+        else:
+            continue
 except KeyboardInterrupt:
     print('Close')

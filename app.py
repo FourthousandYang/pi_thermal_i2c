@@ -189,10 +189,15 @@ def th_gen(camera):
         th_img = camera.get_frame()
         if th_img is None:
             continue
+        val = ktoc(th_img[240,320])
+        print('Thermal:'+"{0:.1f} degC".format(val))
         frame = th_img.copy()
         frame = cv2.LUT(raw_to_8bit(frame), generate_colour_map())
         max_temp(frame,th_img)
+        cv2.line(img, (320 - 5, 240), (240 + 5, 240), (0,255,255), 1)
+        cv2.line(img, (320, 240 - 5), (320, y + 5), (0,255,255), 1)
         frame = cv2.imencode('.jpg', frame)[1].tobytes()
+
         # yield (b'--frame\r\n'
         #        b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
         yield (b'--frame\r\n'
