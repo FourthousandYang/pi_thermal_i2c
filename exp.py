@@ -3,8 +3,32 @@ import time
 import cv2
 from pylepton import Lepton
 import Adafruit_DHT
+import requests
+from urllib import request
+import json
 
 GPIO_PIN = 4
+
+def weather_now(stationId = 'C0E420'):
+    url = 'https://opendata.cwb.gov.tw/api/v1/rest/datastore/O-A0001-001?Authorization=CWB-47D46100-ED39-4FEF-8558-41F45A8DF1DF&locationName='
+    json_data = request.urlopen(url).read().decode("utf-8")
+    json_data = json.loads(json_data)
+
+
+    TEMP = None
+    HUMD = None
+
+    for w in json_data['records']['location']:
+        #for l in w:
+        if w['stationId'] == stationId:
+            for t in w['weatherElement']:
+                if t['elementName'] == 'TEMP' :
+                    TEMP = t['elementValue']
+                    print ("TEMP: "+t['elementValue'])
+                if  t['elementName'] =='HUMD':
+                    HUMD = t['elementValue']
+                    print ("HUMD: "+t['elementValue'])
+    return TEMP,HUMD
 
 def sensor_get():
     h, t = Adafruit_DHT.read_retry(Adafruit_DHT.DHT22, GPIO_PIN)
@@ -148,6 +172,9 @@ try:
     current_time = time.strftime("%Y%m%d", time.localtime())
     file_name = 'record_'+str(current_time)+'_'+str(item_temp)+'_'+str(dis)+'.txt'
     start_time = time.time()
+    start_time_weather = time.time()
+    weather_temp = None
+    weather_humd = None
     while True:
         if (time.time()-start_time)>=1:
             with Lepton() as l:
@@ -156,13 +183,17 @@ try:
             a = cv2.resize(a[:,:], (640, 480))
 
             getImage = a.copy()
-            
+            if (time.time()-start_time_weather) > 3600 or weather_temp is None or weather_humd is None:
+                weather_temp, weather_humd = weather_now()
+                start_time_weather = time.time()
+            else:
+                pass
             ## exp data
             val = ktoc(getImage[240,320])
             t,h,td = sensor_get()
-            '溫度={0:0.1f}度C 濕度={1:0.1f}% '.format(t, h)
+            
             with open(file_name,'a+') as f:
-                f.write("Time:"+ td +' Thermal:'+"{0:.1f} degC".format(val)+' Temperatue:'+"{0:.1f} degC".format(t)+" Humidity:"+"{0:.1f} %".format(h)+'\n')
+                f.write("Time:"+ td +' Thermal:'+"{0:.1f} degC".format(val)+' Temperatue:'+"{0:.1f} degC".format(t)+" Humidity:"+"{0:.1f} %".format(h)+" Weather Temperatue:"+"{0:.1f} %".format(weather_temp)+" Weather Humidity:"+"{0:.1f} %".format(weather_humd)+'\n')
             start_time = time.time()
             ## Show
             # img = cv2.LUT(raw_to_8bit(a), generate_colour_map())
