@@ -193,7 +193,7 @@ try:
             t,h,td = sensor_get()
             
             with open(file_name,'a+') as f:
-                f.write("Time:"+ td +' Thermal:'+"{0:.1f} degC".format(val)+' Temperatue:'+"{0:.1f} degC".format(t)+" Humidity:"+"{0:.1f} %".format(h)+" Weather Temperatue:"+"{0:.1f} %".format(weather_temp)+" Weather Humidity:"+"{0:.1f} %".format(weather_humd)+'\n')
+                f.write("Time:"+ td +' Thermal:'+"{0:.1f} degC".format(val)+' Temperatue:'+"{0:.1f} degC".format(t)+" Humidity:"+"{0:.1f} %".format(h)+" Weather Temperatue:"+"{0:.1f} degC".format(float(weather_temp))+" Weather Humidity:"+"{0:.1f} %".format(float(weather_humd)*100)+'\n')
             start_time = time.time()
             ## Show
             # img = cv2.LUT(raw_to_8bit(a), generate_colour_map())
