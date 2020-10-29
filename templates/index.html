@@ -3,7 +3,65 @@
     <title>Video Streaming Demonstration</title>
   </head>
   <body>
-    <h1>Video Streaming Demonstration</h1>
+    <h1>RGB Streaming Demonstration</h1>
     <img src="{{ url_for('rgb') }}">
+    <h1>Thermal Streaming Demonstration</h1>
+    <img src="{{ url_for('th') }}">
+
+    <div>時間<div id='Time'></div> </div>
+    <div>環境溫度<div id='Temperatue'>40</div> degC</div>
+    <div>環境濕度<div id='Humidity'>40</div> %</div>
+    <div>熱像儀溫度<div id='Thermal'>40</div> degC</div>
+    <div>氣候溫度<div id='Weaher_Temperatue'>40</div> degC</div>
+    <div>氣候濕度<div id='Weaher_Humidity'>40</div> %</div>
   </body>
 </html>
+
+<script type="text/javascript">
+  function get_sensor() {
+            var req = new XMLHttpRequest();
+            req.open('GET', '/api/sensor');
+            req.onreadystatechange = function () {
+                if (req.readyState === 4) {
+                    var result = JSON.parse(req.responseText);
+                    document.getElementById('Humidity').innerHTML = result.Humidity;
+                    document.getElementById('Temperatue').innerHTML = result.Temperatue;
+                    document.getElementById('Time').innerHTML = result.Time;
+                }
+            };
+            req.send();
+        }
+  function get_weather() {
+      var req = new XMLHttpRequest();
+      req.open('GET', '/api/weather');
+      req.onreadystatechange = function () {
+          if (req.readyState === 4) {
+              var result = JSON.parse(req.responseText);
+              document.getElementById('Weaher_Humidity').innerHTML = result.Humidity;
+              document.getElementById('Weaher_Temperatue').innerHTML = result.Temperatue;
+              
+          }
+      };
+      req.send();
+  }
+  function get_th_temp() {
+      var req = new XMLHttpRequest();
+      req.open('GET', '/api/th_temp');
+      req.onreadystatechange = function () {
+          if (req.readyState === 4) {
+              var result = JSON.parse(req.responseText);
+              
+              document.getElementById('Thermal').innerHTML = result.Temperatue;
+              
+          }
+      };
+      req.send();
+  }
+  function repeatedly_get() {
+            get_sensor();
+            get_weather();
+            get_th_temp();
+            setTimeout(repeatedly_get, 1000);
+        }
+  repeatedly_get();
+</script>
