@@ -216,13 +216,13 @@ def th_gen(camera):
         if th_img is None:
             continue
         val = ktoc(th_img[240,320])
-        print('Thermal:'+"{0:.1f} degC".format(val))
+        # print('Thermal:'+"{0:.1f} degC".format(val))
         frame = th_img.copy()
         frame = cv2.LUT(raw_to_8bit(frame), generate_colour_map())
         max_temp(frame,th_img)
         
-        cv2.line(frame, (320 - 5, 240), (240 + 5, 240), (0,255,255), 1)
-        cv2.line(frame, (320, 240 - 5), (320, 240 + 5), (0,255,255), 1)
+        cv2.line(frame, (320 - 5, 240), (320 + 5, 240), (0,0,255), 1)
+        cv2.line(frame, (320, 240 - 5), (320, 240 + 5), (0,0,255), 1)
         frame = cv2.imencode('.jpg', frame)[1].tobytes()
 
         # yield (b'--frame\r\n'
@@ -249,8 +249,8 @@ def th():
 def sensor():
     temp,dry,date = sensor_get()
     json_output = { 
-        'Temperatue': temp ,
-        'Humidity': dry,
+        'Temperatue': "{0:.1f} degC".format(temp) ,
+        'Humidity': "{0:.1f} %".format(dry),
         'Time':date
         }
     return Response(json.dumps(json_output), mimetype='application/json')
@@ -259,8 +259,8 @@ def sensor():
 def weather():
     temp,dry= weather_now()
     json_output = { 
-        'Temperatue': temp ,
-        'Humidity': dry
+        'Temperatue': "{0:.1f} degC".format(temp) ,
+        'Humidity': "{0:.1f} %".format(dry)
         }
     return Response(json.dumps(json_output), mimetype='application/json')
 
@@ -269,7 +269,7 @@ def th_temp():
     global val
     # temp,dry= weather_now()
     json_output = { 
-        'Temperatue': val 
+        'Temperatue': "{0:.1f} degC".format(val)
         }
     return Response(json.dumps(json_output), mimetype='application/json')
 
