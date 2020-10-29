@@ -5,6 +5,7 @@ import cv2
 import numpy as np
 import json
 from flask import Flask, render_template, Response
+from flask import request as frequest
 import time
 import Adafruit_DHT
 import json
@@ -52,14 +53,15 @@ def weather_now(stationId = 'C0E420'):
 def sensor_get():
     h, t = Adafruit_DHT.read_retry(Adafruit_DHT.DHT22, GPIO_PIN)
     current_time = time.strftime("%Y/%m/%d %H:%M:%S", time.localtime())
-    if h is not None and t is not None:
-        #t = time.localtime()
-        # current_time = time.strftime("%Y/%m/%d %H:%M:%S  ", time.localtime())
+    # if h is not None and t is not None:
+    #     #t = time.localtime()
+    #     # current_time = time.strftime("%Y/%m/%d %H:%M:%S  ", time.localtime())
         
-        print(current_time+'溫度={0:0.1f}度C 濕度={1:0.1f}% '.format(t, h))
-    else:
+    #     print(current_time+'溫度={0:0.1f}度C 濕度={1:0.1f}% '.format(t, h))
+    # else:
+    #     print('讀取失敗，重新讀取。')
+    if h is  None and t is  None:
         print('讀取失敗，重新讀取。')
-
     return t,h,current_time
 
 def max_temp(img,th_img):
@@ -287,19 +289,20 @@ def th_temp():
 @app.route('/api/save', methods=['GET', 'POST'])
 def save():
     global item_temp,dis,val
-    if request.method == 'POST':
+    if frequest.method == 'POST':
         
-        item_temp = request.form.get('item_temp')
-        dis = request.form.get('dis')
+        item_temp = frequest.form.get('item_temp')
+        dis = frequest.form.get('dis')
         # save_check = request.form.getlist('save')
-        save_check = 'save' in request.form
+        save_check = 'save' in frequest.form
     print(save_check)
-    if save_check == 'saved' :
+    if save_check :
         weather_temp, weather_humd = weather_now()
         t,h,td = sensor_get()
         current_time = time.strftime("%Y%m%d", time.localtime())
         
         file_name = 'record_'+str(current_time)+'_'+str(item_temp)+'_'+str(dis)+'.txt'
+        print ("Time:"+ td +' Thermal:'+"{0:.1f} degC".format(val)+' Temperatue:'+"{0:.1f} degC".format(t)+" Humidity:"+"{0:.1f} %".format(h)+" Weather Temperatue:"+"{0:.1f} degC".format(float(weather_temp))+" Weather Humidity:"+"{0:.1f} %".format(float(weather_humd)*100)+'\n')
         with open(file_name,'a+') as f:
             f.write("Time:"+ td +' Thermal:'+"{0:.1f} degC".format(val)+' Temperatue:'+"{0:.1f} degC".format(t)+" Humidity:"+"{0:.1f} %".format(h)+" Weather Temperatue:"+"{0:.1f} degC".format(float(weather_temp))+" Weather Humidity:"+"{0:.1f} %".format(float(weather_humd)*100)+'\n')
     return render_template('index.html')        
