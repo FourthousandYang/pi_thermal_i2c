@@ -135,10 +135,17 @@
       };
       req.send();
   }
+  function save() {
+      var req = new XMLHttpRequest();
+      req.open('GET', '/api/save');
+      
+      req.send();
+  }
   function repeatedly_get() {
             get_sensor();
             get_weather();
             get_th_temp();
+            save();
             setTimeout(repeatedly_get, 1000);
         }
   repeatedly_get();

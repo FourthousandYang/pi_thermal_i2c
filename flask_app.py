@@ -26,7 +26,7 @@ GPIO_PIN = 4
 val = None
 item_temp = None
 dis = None
-save_check = None
+save_check = False
 
 
 def weather_now(stationId = 'C0E420'):
@@ -288,8 +288,8 @@ def th_temp():
 
 @app.route('/api/save', methods=['GET', 'POST'])
 def save():
-    global item_temp,dis,val
-    if frequest.method == 'POST':
+    global item_temp,dis,val,save_check
+    if frequest.method == 'POST' and save_check is not True:
         
         item_temp = frequest.form.get('item_temp')
         dis = frequest.form.get('dis')
