@@ -269,7 +269,7 @@ def th_temp():
     global val
     # temp,dry= weather_now()
     json_output = { 
-        'Temperatue': "{0:.1f} degC".format(val)
+        'Temperatue': "{0:.1f} degC".format(float(val))
         }
     return Response(json.dumps(json_output), mimetype='application/json')
 
