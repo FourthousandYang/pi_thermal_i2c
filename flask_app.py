@@ -222,7 +222,7 @@ def th_gen(camera):
         max_temp(frame,th_img)
         
         cv2.line(frame, (320 - 5, 240), (240 + 5, 240), (0,255,255), 1)
-        cv2.line(frame, (320, 240 - 5), (320, y + 5), (0,255,255), 1)
+        cv2.line(frame, (320, 240 - 5), (320, 240 + 5), (0,255,255), 1)
         frame = cv2.imencode('.jpg', frame)[1].tobytes()
 
         # yield (b'--frame\r\n'
