@@ -245,7 +245,7 @@ def th():
     return Response(th_gen(ThCamera()),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
-@app.route('/sensor')
+@app.route('/api/sensor')
 def sensor():
     temp,dry,date = sensor_get()
     json_output = { 
@@ -255,7 +255,7 @@ def sensor():
         }
     return Response(json.dumps(json_output), mimetype='application/json')
 
-@app.route('/weather')
+@app.route('/api/weather')
 def weather():
     temp,dry= weather_now()
     json_output = { 
@@ -264,8 +264,9 @@ def weather():
         }
     return Response(json.dumps(json_output), mimetype='application/json')
 
-@app.route('/th_temp')
+@app.route('/api/th_temp')
 def th_temp():
+    global val
     # temp,dry= weather_now()
     json_output = { 
         'Temperatue': val 
