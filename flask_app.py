@@ -259,8 +259,8 @@ def sensor():
 def weather():
     temp,dry= weather_now()
     json_output = { 
-        'Temperatue': "{0:.1f} degC".format(temp) ,
-        'Humidity': "{0:.1f} %".format(dry)
+        'Temperatue': "{0:.1f} degC".format(float(temp)) ,
+        'Humidity': "{0:.1f} %".format(float(dry)*100)
         }
     return Response(json.dumps(json_output), mimetype='application/json')
 
