@@ -40,11 +40,18 @@
         </td>
         <td>
           <div class='info'>
-            <form method='post' action="/api/save"> 
+            <form method='post' action="/api/save">
+              <div>
               Analyte temperatue: <input type='text' name='item_temp'>
+            </div> 
+            <div>
               Analyte distance:<input type='text' name='dis'>
+            </div>
+              <div>
               Save:<input type="checkbox" name="save" value="saved"/>
+           
               <button type='submit'>Submit</button>
+            </div>
           </form>
           <table border = "2">
             <thead>

@@ -295,7 +295,7 @@ def save():
         dis = frequest.form.get('dis')
         # save_check = request.form.getlist('save')
         save_check = 'save' in frequest.form
-    print(save_check)
+    #print(save_check)
     if save_check :
         weather_temp, weather_humd = weather_now()
         t,h,td = sensor_get()
