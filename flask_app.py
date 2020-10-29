@@ -221,8 +221,8 @@ def th_gen(camera):
         frame = cv2.LUT(raw_to_8bit(frame), generate_colour_map())
         max_temp(frame,th_img)
         
-        cv2.line(img, (320 - 5, 240), (240 + 5, 240), (0,255,255), 1)
-        cv2.line(img, (320, 240 - 5), (320, y + 5), (0,255,255), 1)
+        cv2.line(frame, (320 - 5, 240), (240 + 5, 240), (0,255,255), 1)
+        cv2.line(frame, (320, 240 - 5), (320, y + 5), (0,255,255), 1)
         frame = cv2.imencode('.jpg', frame)[1].tobytes()
 
         # yield (b'--frame\r\n'
