@@ -289,7 +289,7 @@ def th_temp():
 @app.route('/api/save', methods=['GET', 'POST'])
 def save():
     global item_temp,dis,val,save_check
-    if frequest.method == 'POST' and save_check is not True:
+    if frequest.method == 'POST' :
         
         item_temp = frequest.form.get('item_temp')
         dis = frequest.form.get('dis')
