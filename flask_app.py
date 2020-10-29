@@ -275,7 +275,7 @@ def th_temp():
         return Response(json.dumps(json_output), mimetype='application/json')
     else:
         json_output = { 
-            'Temperatue': val)
+            'Temperatue': val
             }
         return Response(json.dumps(json_output), mimetype='application/json')
 if __name__ == '__main__':
