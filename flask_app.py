@@ -39,10 +39,10 @@ def weather_now(stationId = 'C0E420'):
             for t in w['weatherElement']:
                 if t['elementName'] == 'TEMP' :
                     TEMP = t['elementValue']
-                    print ("TEMP: "+t['elementValue'])
+                    # print ("TEMP: "+t['elementValue'])
                 if  t['elementName'] =='HUMD':
                     HUMD = t['elementValue']
-                    print ("HUMD: "+t['elementValue'])
+                    # print ("HUMD: "+t['elementValue'])
     return TEMP,HUMD
 
 def sensor_get():
@@ -268,11 +268,16 @@ def weather():
 def th_temp():
     global val
     # temp,dry= weather_now()
-    json_output = { 
-        'Temperatue': "{0:.1f} degC".format(float(val))
-        }
-    return Response(json.dumps(json_output), mimetype='application/json')
-
+    if val is not None:
+        json_output = { 
+            'Temperatue': "{0:.1f} degC".format(float(val))
+            }
+        return Response(json.dumps(json_output), mimetype='application/json')
+    else:
+        json_output = { 
+            'Temperatue': val)
+            }
+        return Response(json.dumps(json_output), mimetype='application/json')
 if __name__ == '__main__':
     print(app.before_first_request_funcs)
     app.run(host='0.0.0.0', threaded=True)
