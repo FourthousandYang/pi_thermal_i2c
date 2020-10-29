@@ -8,7 +8,7 @@ from flask import Flask, render_template, Response
 import time
 import Adafruit_DHT
 import json
-
+import logging
 from urllib import request
 
 # import camera driver
@@ -23,6 +23,10 @@ from th_camera_opencv import ThCamera
 
 GPIO_PIN = 4
 val = None
+item_temp = None
+dis = None
+save_check = None
+
 
 def weather_now(stationId = 'C0E420'):
     url = 'https://opendata.cwb.gov.tw/api/v1/rest/datastore/O-A0001-001?Authorization=CWB-47D46100-ED39-4FEF-8558-41F45A8DF1DF&locationName='
@@ -185,7 +189,8 @@ def raw_to_8bit(data):
 #r = requests.get("http://10.71.10.246:5000/ip_get")
 #print (r)
 app = Flask(__name__)
-
+log = logging.getLogger('werkzeug')
+log.disabled = True
 
 @app.route('/')
 def index():
@@ -278,6 +283,26 @@ def th_temp():
             'Temperatue': val
             }
         return Response(json.dumps(json_output), mimetype='application/json')
+
+@app.route('/api/save', methods=['GET', 'POST'])
+def save():
+    global item_temp,dis,val
+    if request.method == 'POST':
+        
+        item_temp = request.form.get('item_temp')
+        dis = request.form.get('dis')
+        # save_check = request.form.getlist('save')
+        save_check = 'save' in request.form
+    print(save_check)
+    if save_check == 'saved' :
+        weather_temp, weather_humd = weather_now()
+        t,h,td = sensor_get()
+        current_time = time.strftime("%Y%m%d", time.localtime())
+        
+        file_name = 'record_'+str(current_time)+'_'+str(item_temp)+'_'+str(dis)+'.txt'
+        with open(file_name,'a+') as f:
+            f.write("Time:"+ td +' Thermal:'+"{0:.1f} degC".format(val)+' Temperatue:'+"{0:.1f} degC".format(t)+" Humidity:"+"{0:.1f} %".format(h)+" Weather Temperatue:"+"{0:.1f} degC".format(float(weather_temp))+" Weather Humidity:"+"{0:.1f} %".format(float(weather_humd)*100)+'\n')
+    return render_template('index.html')        
 if __name__ == '__main__':
     print(app.before_first_request_funcs)
     app.run(host='0.0.0.0', threaded=True)
