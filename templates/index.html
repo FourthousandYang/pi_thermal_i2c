@@ -3,17 +3,78 @@
     <title>Video Streaming Demonstration</title>
   </head>
   <body>
-    <h1>RGB Streaming Demonstration</h1>
-    <img src="{{ url_for('rgb') }}">
-    <h1>Thermal Streaming Demonstration</h1>
-    <img src="{{ url_for('th') }}">
+    <div class='container'>
+      <table border = "2">
+        <thead>
+            <tr>
+                <th colspan="2"><h1>Video Streaming</h1></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><h1>RGB Streaming Demonstration</h1></td>
+                <td><h1>Thermal Streaming Demonstration</h1></td>
+            </tr>
+            <tr> 
+              <td>
+                <div class='right'>
+        
+                  <img src="{{ url_for('rgb') }}">
+                </div>
+               </td>
+            <td>
+              <div class='left'>
+              
+                <img src="{{ url_for('th') }}">
+              </div>
+            </td>
+          </tr>
+        </tbody>
+    </table>
+  
+  </div>
 
-    <div>時間<div id='Time'></div> </div>
-    <div>環境溫度<div id='Temperatue'>40</div> degC</div>
-    <div>環境濕度<div id='Humidity'>40</div> %</div>
-    <div>熱像儀溫度<div id='Thermal'>40</div> degC</div>
-    <div>氣候溫度<div id='Weaher_Temperatue'>40</div> degC</div>
-    <div>氣候濕度<div id='Weaher_Humidity'>40</div> %</div>
+  <table border = "2">
+    <thead>
+      <tr>
+          <th colspan="2"><h1>Info</h1></th>
+      </tr>
+  </thead>    
+    <tbody>
+      <tr>
+        <td><div>時間 </div></td>
+        <td><div id='Time'></div></td>
+        
+      </tr>
+      <tr>
+        <td><div>環境溫度</div></td>
+        <td><div id='Temperatue'>40</div> degC</td>
+        
+      </tr>
+      <tr>
+        <td><div>環境濕度</div></td>
+        <td><div id='Humidity'>40</div> %</td>
+        
+      </tr>
+      <tr>
+        <td><div>熱像儀溫度</div></td>
+        <td><div id='Thermal'>40</div> degC</td>
+        
+      </tr>
+      <tr>
+        <td><div>氣候溫度</div></td>
+        <td><div id='Weaher_Temperatue'>40</div> degC</td>
+        
+      </tr>
+      <tr>
+        <td><div>氣候濕度</div></td>
+        <td><div id='Weaher_Humidity'>40</div> %</td>
+        
+      </tr>
+
+    
+    </tbody>
+  </table>
   </body>
 </html>
 
